@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# the ingress -A -> k get ingress -A -ojson | jq -r '.items[] | [.metadata.name, .spec.rules[0].host] | @tsv' | column -t
+
+ingress(){
+    kubectl get $@ -ojson | jq -S -r '["NAME","INGRESS"], (.items[] | [.metadata.name, .spec.rules[].host]) | @tsv' | column -t
+}
+
+context(){
+    kubectl config set-context --current --namespace=$@
+}
+
+default(){
+    kubectl get $@
+}
+
+case "$1" in
+    ingress) ingress $@;;
+    context) context $2;;
+    *) default $@;;
+esac
