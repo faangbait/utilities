@@ -21,7 +21,7 @@
 
 set -e # Fail on errors
 
-usage() { echo "$0 usage:" && grep " .)\ #" $0; exit 0; }
+usage() { echo "$0 usage:" && grep " .) # " $0 | tail -n +2; exit 0; }
 
 pack () { 
     for SUBDIR in *; do
@@ -66,7 +66,7 @@ unpack() {
 }
 
 
-while getopts "apu" arg; do
+while getopts "apun" arg; do
     case $arg in
         a) # Automatically decide whether to package or unpackage
             if [[ $(find . -maxdepth 1 -type d | wc -l) -ne 1 ]]; then
@@ -85,6 +85,12 @@ while getopts "apu" arg; do
         u) # Only Unpackage
             unpack
             exit 0
+            ;;
+        n) # New
+            read -p "folder name? " SUBDIR
+            mkdir -p ${SUBDIR}
+            sudo mount -o sync,noatime -t ramfs ramfs ${SUBDIR}
+            sudo chown $(whoami) ${SUBDIR}
             ;;
         *)
             usage
